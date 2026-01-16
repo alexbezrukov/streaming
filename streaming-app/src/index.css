@@ -1,0 +1,396 @@
+/* index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --sidebar-width: 16rem;
+  --sidebar-collapsed: 5rem;
+}
+
+/* Кастомные стили */
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  }
+
+  /* Кастомный скроллбар */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full hover:bg-gray-400 transition-colors;
+  }
+
+  /* Выделение текста */
+  ::selection {
+    @apply bg-blue-100 text-blue-900;
+  }
+}
+
+@layer components {
+
+  /* Карточки */
+  .stat-card {
+    @apply bg-white rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl border border-transparent hover:border-blue-100;
+  }
+
+  .service-card {
+    @apply bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1;
+  }
+
+  .customer-card {
+    @apply bg-white rounded-xl border border-gray-200 p-4 hover:shadow-lg transition-all duration-200 hover:border-blue-200;
+  }
+
+  .master-card {
+    @apply bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300;
+  }
+
+  /* Кнопки */
+  .btn-primary {
+    @apply flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+  }
+
+  .btn-danger {
+    @apply flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+  }
+
+  .btn-icon {
+    @apply p-2 hover:bg-gray-100 rounded-lg transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1;
+  }
+
+  /* Формы */
+  .input-primary {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none placeholder:text-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed;
+  }
+
+  .input-with-icon {
+    @apply pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none;
+  }
+
+  /* Таблицы */
+  .table-header {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50;
+  }
+
+  .table-cell {
+    @apply px-6 py-4 whitespace-nowrap text-sm;
+  }
+
+  .table-row-hover {
+    @apply hover:bg-gray-50 transition-colors duration-150;
+  }
+
+  /* Бейджи */
+  .badge {
+    @apply px-3 py-1 rounded-full text-xs font-medium;
+  }
+
+  .badge-confirmed {
+    @apply bg-green-100 text-green-800;
+  }
+
+  .badge-pending {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+
+  .badge-completed {
+    @apply bg-blue-100 text-blue-800;
+  }
+
+  .badge-cancelled {
+    @apply bg-red-100 text-red-800;
+  }
+
+  .badge-vip {
+    @apply bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border border-purple-200;
+  }
+
+  .badge-active {
+    @apply bg-green-100 text-green-800;
+  }
+
+  .badge-inactive {
+    @apply bg-gray-100 text-gray-800;
+  }
+
+  /* Аватарки */
+  .avatar {
+    @apply rounded-full flex items-center justify-center text-white font-bold;
+  }
+
+  .avatar-sm {
+    @apply w-8 h-8 text-sm;
+  }
+
+  .avatar-md {
+    @apply w-10 h-10 text-base;
+  }
+
+  .avatar-lg {
+    @apply w-12 h-12 text-lg;
+  }
+
+  .avatar-xl {
+    @apply w-16 h-16 text-xl;
+  }
+
+  /* Градиенты */
+  .gradient-primary {
+    @apply bg-gradient-to-br from-blue-500 to-purple-600;
+  }
+
+  .gradient-success {
+    @apply bg-gradient-to-br from-green-500 to-emerald-600;
+  }
+
+  .gradient-warning {
+    @apply bg-gradient-to-br from-yellow-500 to-orange-600;
+  }
+
+  .gradient-danger {
+    @apply bg-gradient-to-br from-red-500 to-pink-600;
+  }
+
+  /* Скелетоны (загрузка) */
+  .skeleton {
+    @apply animate-pulse bg-gray-200 rounded;
+  }
+
+  .skeleton-text {
+    @apply h-4 bg-gray-200 rounded w-3/4;
+  }
+
+  .skeleton-circle {
+    @apply rounded-full bg-gray-200;
+  }
+
+  /* Модальные окна */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity duration-300;
+  }
+
+  .modal-content {
+    @apply bg-white rounded-2xl shadow-2xl transform transition-all duration-300 scale-100 opacity-100;
+  }
+
+  /* Уведомления */
+  .notification {
+    @apply fixed right-4 bottom-4 bg-white rounded-lg shadow-xl border-l-4 p-4 max-w-sm transform transition-all duration-300 translate-x-0;
+  }
+
+  .notification-success {
+    @apply border-green-500;
+  }
+
+  .notification-error {
+    @apply border-red-500;
+  }
+
+  .notification-warning {
+    @apply border-yellow-500;
+  }
+
+  /* Навигация */
+  .nav-item {
+    @apply flex items-center space-x-3 px-4 py-3 hover:bg-gray-800 transition-colors duration-200 rounded-lg;
+  }
+
+  .nav-item-active {
+    @apply bg-blue-600 text-white hover:bg-blue-700;
+  }
+
+  /* Карты и графики */
+  .chart-container {
+    @apply bg-white rounded-xl shadow-lg p-6;
+  }
+
+  .chart-title {
+    @apply text-lg font-semibold text-gray-900 mb-4;
+  }
+
+  /* Ховер-эффекты */
+  .hover-lift {
+    @apply transition-transform duration-300 hover:-translate-y-1;
+  }
+
+  .hover-glow {
+    @apply transition-shadow duration-300 hover:shadow-lg;
+  }
+
+  /* Разделители */
+  .divider {
+    @apply border-t border-gray-200 my-6;
+  }
+
+  .divider-vertical {
+    @apply border-l border-gray-200 h-6;
+  }
+}
+
+@layer utilities {
+
+  /* Анимации */
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-bounce-slow {
+    animation: bounce 3s infinite;
+  }
+
+  /* Градиентный текст */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600;
+  }
+
+  /* Обрезка текста */
+  .truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Плавный скролл */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+  }
+
+  /* Скрыть стрелки у input number */
+  .hide-number-arrows::-webkit-outer-spin-button,
+  .hide-number-arrows::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .hide-number-arrows {
+    -moz-appearance: textfield;
+  }
+}
+
+/* Кастомные анимации */
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% auto;
+  animation: shimmer 2s infinite linear;
+}
+
+/* Тёмная тема (заготовка) */
+@media (prefers-color-scheme: dark) {
+  .dark-mode {
+
+    .stat-card,
+    .service-card,
+    .customer-card,
+    .master-card,
+    .chart-container {
+      @apply bg-gray-800 border-gray-700 text-white;
+    }
+
+    .input-primary,
+    .input-with-icon {
+      @apply bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-blue-400;
+    }
+
+    .btn-secondary {
+      @apply bg-gray-800 border-gray-700 text-gray-200 hover:bg-gray-700;
+    }
+
+    .table-header {
+      @apply bg-gray-800 text-gray-300;
+    }
+
+    .table-row-hover {
+      @apply hover:bg-gray-700;
+    }
+  }
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+  .mobile-hidden {
+    @apply hidden;
+  }
+
+  .mobile-flex-col {
+    @apply flex flex-col;
+  }
+
+  .mobile-p-4 {
+    @apply p-4;
+  }
+
+  .mobile-text-center {
+    @apply text-center;
+  }
+}
+
+/* Печать */
+@media print {
+  .no-print {
+    @apply hidden;
+  }
+
+  .print-break {
+    page-break-before: always;
+  }
+}

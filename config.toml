@@ -1,0 +1,65 @@
+[server]
+http_port = 3005
+rtmp_port = 1935
+bind_addr = "0.0.0.0"
+node_id = "origin-1"
+node_type = "origin"  # or "edge"
+location = "EU-WEST"
+
+[redis]
+url = "redis://127.0.0.1:6379"
+pool_size = 10
+timeout_seconds = 5
+cluster_mode = false
+key_prefix = "stream:"
+
+[cdn]
+memory_cache_size = 10000
+segment_ttl = 300
+max_node_capacity = 5000
+enable_edge_cache = true
+enable_stats = true
+# origin_url = "http://origin-server:3000"  # Required for edge nodes
+
+# Load balancing configuration
+load_balancing_strategy = "least-connections"  # Options: least-connections, geographic, weighted, round-robin, random
+heartbeat_timeout_seconds = 30
+max_load_percentage = 90.0
+
+[streaming]
+hls_segment_duration = 6
+hls_playlist_size = 10
+enable_dash = true
+enable_webrtc = true
+dvr_window_seconds = 60
+default_codec = "h264"
+enable_abr = true
+
+# Transcoding profiles
+[[streaming.profiles]]
+name = "360p"
+width = 640
+height = 360
+bitrate_kbps = 1000
+fps = 30
+
+[[streaming.profiles]]
+name = "720p"
+width = 1280
+height = 720
+bitrate_kbps = 3000
+fps = 30
+
+[[streaming.profiles]]
+name = "1080p"
+width = 1920
+height = 1080
+bitrate_kbps = 6000
+fps = 30
+
+[[streaming.profiles]]
+name = "2160p"
+width = 3840
+height = 2160
+bitrate_kbps = 12000
+fps = 30

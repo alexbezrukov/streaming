@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  # origin:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - .env.origin
+  #   ports:
+  #     - "3000:3000"
+  #     - "1935:1935"
+  #   depends_on:
+  #     - redis
+  #   volumes:
+  #     - ./logs:/app/logs
+  #   restart: unless-stopped
+
+  # edge-us-east:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - NODE_TYPE=edge
+  #     - NODE_ID=edge-us-east-1
+  #     - NODE_LOCATION=US-EAST
+  #     - ORIGIN_URL=http://origin:3000
+  #     - REDIS_URL=redis://redis:6379
+  #   ports:
+  #     - "3001:3000"
+  #   depends_on:
+  #     - redis
+  #     - origin
+  #   restart: unless-stopped
+
+  # edge-eu-west:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - NODE_TYPE=edge
+  #     - NODE_ID=edge-eu-west-1
+  #     - NODE_LOCATION=EU-WEST
+  #     - ORIGIN_URL=http://origin:3000
+  #     - REDIS_URL=redis://redis:6379
+  #   ports:
+  #     - "3002:3000"
+  #   depends_on:
+  #     - redis
+  #     - origin
+  #   restart: unless-stopped
+
+  # edge-apac:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - NODE_TYPE=edge
+  #     - NODE_ID=edge-apac-1
+  #     - NODE_LOCATION=APAC
+  #     - ORIGIN_URL=http://origin:3000
+  #     - REDIS_URL=redis://redis:6379
+  #   ports:
+  #     - "3003:3000"
+  #   depends_on:
+  #     - redis
+  #     - origin
+  #   restart: unless-stopped
+
+volumes:
+  redis_data:
