@@ -40,7 +40,7 @@ impl HLSManifestGenerator {
                 height,
                 quality.to_string()
             ));
-            m3u8.push_str(&format!("{}/{}.m3u8\n\n", stream_id, quality.to_string()));
+            m3u8.push_str(&format!("{}/index.m3u8\n\n", quality.to_string()));
         }
 
         m3u8
@@ -59,13 +59,11 @@ impl HLSManifestGenerator {
         );
 
         for segment in segments {
-            m3u8.push_str(&format!("#EXTINF:{:.3},\n", segment.duration_ms as f32 / 1000.0));
             m3u8.push_str(&format!(
-                "{}/{}/segment_{}.ts\n",
-                stream_id,
-                quality.to_string(),
-                segment.sequence
+                "#EXTINF:{:.3},\n",
+                segment.duration_ms as f32 / 1000.0
             ));
+            m3u8.push_str(&format!("segment_{}.ts\n", segment.sequence));
         }
 
         m3u8

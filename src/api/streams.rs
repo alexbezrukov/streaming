@@ -35,9 +35,9 @@ pub async fn create_stream(
         stream_id: stream_id.clone(),
         rtmp_url: format!("rtmp://localhost:1935/live"),
         stream_key: stream_id.clone(),
-        hls_url: format!("http://localhost:3000/hls/{}/master.m3u8", stream_id),
-        dash_url: format!("http://localhost:3000/dash/{}/manifest.mpd", stream_id),
-        webrtc_url: format!("ws://localhost:3000/webrtc/{}", stream_id),
+        hls_url: format!("http://localhost:3005/hls/{}/master.m3u8", stream_id),
+        dash_url: format!("http://localhost:3005/dash/{}/manifest.mpd", stream_id),
+        webrtc_url: format!("ws://localhost:3005/webrtc/{}", stream_id),
     }))
 }
 

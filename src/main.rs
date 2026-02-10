@@ -1,20 +1,23 @@
-use axum::{routing::{get, post, delete}, Router};
+use axum::{
+    Router,
+    routing::{delete, get, post},
+};
 use std::sync::Arc;
 use tower_http::{
-    cors::CorsLayer,
     compression::CompressionLayer,
+    cors::CorsLayer,
     trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer},
 };
 use tracing::Level;
 
-mod domain;
+mod api;
 mod cdn;
-mod streaming;
+mod config;
+mod domain;
 mod ingest;
 mod manager;
-mod api;
 mod state;
-mod config;
+mod streaming;
 
 use config::settings::Config;
 use manager::stream_manager::StreamManager;
@@ -34,7 +37,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Load configuration
     let config = load_config()?;
-    
+
     // Validate configuration
     config.validate()?;
 
@@ -49,7 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Initialize stream manager
     let stream_manager = StreamManager::new(&config).await?;
-    
+
     let state = AppState {
         stream_manager: stream_manager.clone(),
         config: Arc::new(config.clone()),
@@ -59,10 +62,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if config.is_origin() {
         let rtmp_state = state.clone();
         let rtmp_addr = config.rtmp_addr();
-        
+
         tokio::spawn(async move {
             tracing::info!("Starting RTMP server on {}", rtmp_addr);
-            
+
             match ingest::rtmp::handle_rtmp_ingest(rtmp_state, rtmp_addr).await {
                 Ok(_) => {
                     tracing::info!("RTMP server stopped gracefully");
@@ -86,9 +89,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Start HTTP server
     let http_addr = config.http_addr();
     tracing::info!("🚀 Server listening on {}", http_addr);
-    
+
     let listener = tokio::net::TcpListener::bind(http_addr).await?;
-    
+
     axum::serve(listener, app)
         .await
         .map_err(|e| format!("Server error: {}", e))?;
@@ -114,44 +117,60 @@ fn build_router(state: AppState) -> Router {
     Router::new()
         // Health check
         .route("/health", get(api::health::health_check))
-        
         // Stream management
         .route("/api/streams", post(api::streams::create_stream))
         .route("/api/streams", get(api::streams::list_streams))
         .route("/api/streams/:stream_id", get(api::streams::get_stream))
         .route("/api/streams/:stream_id", delete(api::streams::end_stream))
-        
         // HLS endpoints
-        .route("/hls/:stream_id/master.m3u8", get(api::hls::hls_master_playlist))
-        .route("/hls/:stream_id/:quality/index.m3u8", get(api::hls::hls_media_playlist))
-        .route("/hls/:stream_id/:quality/:segment", get(api::hls::hls_segment))
-        
+        // .route(
+        //     "/hls/:stream_id/master.m3u8",
+        //     get(api::hls::hls_master_playlist),
+        // )
+        .route(
+            "/hls/:stream_id/:quality/index.m3u8",
+            get(api::hls::hls_media_playlist),
+        )
+        // .route(
+        //     "/hls/:stream_id/:quality/:segment",
+        //     get(api::hls::hls_segment),
+        // )
+        .route(
+            "/hls/:stream_id/master.m3u8",
+            get(api::hls::hls_master_playlist),
+        )
+        .route(
+            "/hls/:stream_id/:quality/:filename",
+            get(api::hls::hls_segment),
+        )
         // DASH endpoints
-        .route("/dash/:stream_id/manifest.mpd", get(api::dash::dash_manifest))
-        
+        .route(
+            "/dash/:stream_id/manifest.mpd",
+            get(api::dash::dash_manifest),
+        )
         // WebSocket endpoints
         .route("/ws/:stream_id/watch", get(api::websocket::watch_stream))
-        .route("/ws/:stream_id/webrtc", get(api::websocket::webrtc_signaling))
-        
+        .route(
+            "/ws/:stream_id/webrtc",
+            get(api::websocket::webrtc_signaling),
+        )
+        .route("/ws/ingest/:stream_id", get(api::websocket::ingest_stream))
         // CDN management
         .route("/api/cdn/edge-nodes", post(api::cdn::register_edge_node))
         .route("/api/cdn/select-edge", post(api::cdn::select_edge_node))
         .route("/api/cdn/cache-stats", get(api::cdn::cache_stats))
-        
         // Metrics & monitoring
         .route("/api/metrics", get(api::metrics::get_metrics))
         // .route("/api/metrics/cache", get(api::metrics::cache_metrics))
         // .route("/api/metrics/streams", get(api::metrics::stream_metrics))
-        
         // Middleware
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
-                .on_response(DefaultOnResponse::new().level(Level::INFO))
+                .on_response(DefaultOnResponse::new().level(Level::INFO)),
         )
         .layer(CorsLayer::permissive())
         .layer(CompressionLayer::new())
-        
         // State
         .with_state(state)
 }
@@ -164,13 +183,11 @@ fn spawn_background_tasks(state: AppState) {
     if config.cdn.enable_edge_cache {
         let state_clone = state.clone();
         tokio::spawn(async move {
-            let mut interval = tokio::time::interval(
-                std::time::Duration::from_secs(60)
-            );
-            
+            let mut interval = tokio::time::interval(std::time::Duration::from_secs(60));
+
             loop {
                 interval.tick().await;
-                
+
                 // Cleanup expired cache entries
                 if let Err(e) = state_clone.stream_manager.cleanup_cache().await {
                     tracing::error!("Cache cleanup error: {}", e);
@@ -183,13 +200,11 @@ fn spawn_background_tasks(state: AppState) {
     if config.is_edge() {
         let state_clone = state.clone();
         tokio::spawn(async move {
-            let mut interval = tokio::time::interval(
-                std::time::Duration::from_secs(10)
-            );
-            
+            let mut interval = tokio::time::interval(std::time::Duration::from_secs(10));
+
             loop {
                 interval.tick().await;
-                
+
                 // Send heartbeat to origin
                 if let Err(e) = send_heartbeat(&state_clone).await {
                     tracing::error!("Heartbeat error: {}", e);
@@ -202,13 +217,11 @@ fn spawn_background_tasks(state: AppState) {
     if config.cdn.enable_stats {
         let state_clone = state.clone();
         tokio::spawn(async move {
-            let mut interval = tokio::time::interval(
-                std::time::Duration::from_secs(30)
-            );
-            
+            let mut interval = tokio::time::interval(std::time::Duration::from_secs(30));
+
             loop {
                 interval.tick().await;
-                
+
                 // Collect and log metrics
                 collect_metrics(&state_clone).await;
             }
@@ -228,23 +241,19 @@ async fn send_heartbeat(state: &AppState) -> Result<(), Box<dyn std::error::Erro
 
         let client = reqwest::Client::new();
         let url = format!("{}/api/cdn/heartbeat", origin_url);
-        
-        client
-            .post(&url)
-            .json(&node_info)
-            .send()
-            .await?;
-        
+
+        client.post(&url).json(&node_info).send().await?;
+
         tracing::debug!("Heartbeat sent to origin");
     }
-    
+
     Ok(())
 }
 
 /// Collect and log metrics
 async fn collect_metrics(state: &AppState) {
     let metrics = state.stream_manager.get_metrics().await;
-    
+
     tracing::info!(
         "Metrics - Active streams: {}, Total viewers: {}, Cache hit rate: {:.2}%",
         metrics.active_streams,
